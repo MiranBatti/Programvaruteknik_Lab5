@@ -4,29 +4,34 @@ import domain.DataSource;
 import domain.FootballGoalsSource;
 import domain.TemperatureSource;
 
-public class GoalsTemperatureComparison {
+public class DataSourceComparator {
 
 	public DataSource goals;
 	public DataSource temperatures;
 	public DataCollectionBuilder builder;
 	public DataCollection result;
 	
-	public GoalsTemperatureComparison() {
+	public DataSourceComparator() {
 		goals = new FootballGoalsSource();
 		temperatures = new TemperatureSource();
 		builder = new DataCollectionBuilder(goals, temperatures, Resolution.DAY);
 		result = builder.getResult();
 	}
 	
-	public GoalsTemperatureComparison(Resolution res) {
+	public DataSourceComparator(Resolution res) {
 		goals = new FootballGoalsSource();
 		temperatures = new TemperatureSource();
 		builder = new DataCollectionBuilder(goals, temperatures, res);
 		result = builder.getResult();
 	}
 	
-	public GoalsTemperatureComparison(DataCollectionBuilder dcb) {
-		builder = dcb;
+	public DataSourceComparator(DataSource source1, DataSource source2) {
+		builder = new DataCollectionBuilder(source1, source2, Resolution.DAY);
+		result = builder.getResult();
+	}
+	
+	public DataSourceComparator(DataSource source1, DataSource source2, Resolution res) {
+		builder = new DataCollectionBuilder(source1, source2, res);
 		result = builder.getResult();
 	}
 	
@@ -47,5 +52,4 @@ public class GoalsTemperatureComparison {
 		
 		return sb.toString();
 	}
-
 }

@@ -1,40 +1,38 @@
 package factory;
 
-import compare.DataCollectionBuilder;
-import compare.Resolution;
+import java.util.HashMap;
+import java.util.Map;
+
 import domain.DataSource;
 import domain.FootballGoalsSource;
 import domain.TemperatureSource;
+import errorhandler.ArrayIsEmptyExcpetion;
 
 public class DataSourceFactory {
-	private FootballGoalsSource football;
+	private FootballGoalsSource goals;
 	private TemperatureSource temperature;
-	private Resolution resolution;
+	private Map<String, DataSource> datasources;
+	private DataSource[] list;
 	
 	public DataSourceFactory() {
-		football = new FootballGoalsSource();
+		goals = new FootballGoalsSource();
 		temperature = new TemperatureSource();
-		resolution = Resolution.DAY;
+		datasources = new HashMap<String, DataSource>();
+		datasources.put("goals", goals);
+		datasources.put("temperature", temperature);
+		list = new DataSource[2];
 	}
+
 	
-	public DataSourceFactory(Resolution res) {
-		football = new FootballGoalsSource();
-		temperature = new TemperatureSource();
-		resolution = res;
-	}
-	
-	public DataCollectionBuilder getSource(String datasource1, String datasource2) {
-		DataSource firstSource = null, secondSource = null;
+	public DataSource[] getSource(String datasource1, String datasource2) throws ArrayIsEmptyExcpetion{
 		
-		if(datasource1.equals("football") || datasource2.equals("football")) {
-			firstSource = football;
-		} 
+		list[0] = datasources.get(datasource1);
+		list[1] = datasources.get(datasource2);
 		
-		if(datasource1.equals("temperature") || datasource2.equals("temperature")) {
-			secondSource = temperature;
-		}
+		if(list[0] == null || list[1] == null) 
+			throw new ArrayIsEmptyExcpetion("Missing datasource");
 		
-		return new DataCollectionBuilder(firstSource, secondSource, resolution);
+		return list;
 	}
 	
 }
