@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class SpectatorsSource implements DataSource {
 	@Override
 	public String getName() {
-		return "Publik";
+		return "Spectators";
 	}
 
 	@Override
@@ -27,11 +27,8 @@ public class SpectatorsSource implements DataSource {
 		Map<LocalDate, Double> result = new TreeMap<>();
 		List<Map> events = filterSpectators((List<Map>) data.get("events"));
 		
-		for (Map event : events) {
-			LocalDate date = LocalDate.parse(event.get("startDate").toString().substring(0, 10));
-			int spectators = Integer.parseInt(event.get("spectators").toString());
-			addGoalsToDate(result, date, spectators);
-		}
+		addToResult(events, result, data);
+		
 		return result;
 	}
 	
@@ -41,39 +38,30 @@ public class SpectatorsSource implements DataSource {
 				.filter(event -> (((Map) event.get("facts")) != null))
 				.filter(event -> (((Map)event.get("facts")).get("spectators")) != null)
 				.collect(Collectors.toList());
-
-//		return events.stream()
-//				.filter(event -> ((Map) ((Map) event.get("facts")).get("spectators") != null))
-//				.collect(Collectors.toList());
-	}
-
-	private void addGoalsToDate(Map<LocalDate, Double> result, LocalDate date, int goals) {
-		if (!result.containsKey(date)) {
-			result.put(date, new Double(goals));
-		} else {
-			result.put(date, result.get(date) + goals);
-		}
 	}
 	
-	public void test() {
-		UrlFetcher fetcher = new UrlFetcher(
-				"http://api.everysport.com/v1/events?apikey=1769e0fdbeabd60f479b1dcaff03bf5c&league=63925&limit=240");
-		JsonToMapParser parser = new JsonToMapParser(fetcher.getContent());
-		Map<String, Object> data = parser.getResult();
-		Map<LocalDate, Double> result = new TreeMap<>();
-		List<Map> events = filterSpectators((List<Map>) data.get("events"));
-		
+	@SuppressWarnings("rawtypes")
+	private void addToResult(List<Map> events, Map<LocalDate, Double> result, Map<String, Object> data) {
 		for (Map event : events) {
 			LocalDate date = LocalDate.parse(event.get("startDate").toString().substring(0, 10));
 			Map facts = (Map) event.get("facts");
-			Long spectators = (Long) facts.get("spectators");
-			System.out.println(date.toString() + " - " + spectators);
+			Map arena = (Map) ((Map)event.get("facts")).get("arena");
+			
+			String arenaName = null;
+			Double spectators = null;
+			
+			if(arena != null) {
+				arenaName = (String)arena.get("name");
+				if(arenaName.equals("Strömvallen")) {
+					spectators = Double.parseDouble(facts.get("spectators").toString());
+					result.put(date, spectators);						
+				}
+			}
 		}
-		
 	}
 	
 	public static void main(String[] args) {
-		new SpectatorsSource().test();
+		new SpectatorsSource().getData().forEach((dates, spectators) -> System.out.println(dates + " - " + spectators));
 	}
 	
 }

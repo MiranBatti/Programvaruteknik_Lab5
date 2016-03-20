@@ -1,36 +1,26 @@
 package compare;
 
 import domain.DataSource;
-import domain.FootballGoalsSource;
-import domain.TemperatureSource;
+import domain.SpectatorsSource;
+import domain.StaticJSONSource;
 
 public class DataSourceComparator {
 
-	public DataSource goals;
-	public DataSource temperatures;
+	public DataSource source1;
+	public DataSource source2;
 	public DataCollectionBuilder builder;
 	public DataCollection result;
 	
-	public DataSourceComparator() {
-		goals = new FootballGoalsSource();
-		temperatures = new TemperatureSource();
-		builder = new DataCollectionBuilder(goals, temperatures, Resolution.DAY);
-		result = builder.getResult();
-	}
-	
-	public DataSourceComparator(Resolution res) {
-		goals = new FootballGoalsSource();
-		temperatures = new TemperatureSource();
-		builder = new DataCollectionBuilder(goals, temperatures, res);
-		result = builder.getResult();
-	}
-	
 	public DataSourceComparator(DataSource source1, DataSource source2) {
+		this.source1 = source1;
+		this.source2 = source2;
 		builder = new DataCollectionBuilder(source1, source2, Resolution.DAY);
 		result = builder.getResult();
 	}
 	
 	public DataSourceComparator(DataSource source1, DataSource source2, Resolution res) {
+		this.source1 = source1;
+		this.source2 = source2;
 		builder = new DataCollectionBuilder(source1, source2, res);
 		result = builder.getResult();
 	}
@@ -44,12 +34,22 @@ public class DataSourceComparator {
 		result.getData().forEach((date, match) -> {
 			sb.append(
 		            "{\"Date\":" + "\"" + date + "\"" + "," + 
-					"\"Goals\":" + match.getXValue() + "," +
-					"\"Temperature\":" + match.getYValue() + " },");
+					"\"" + source1.getName() + "\":" + match.getXValue() + "," +
+					"\"" + source2.getName() + "\":" + match.getYValue() + " },");
 		});
 		sb.deleteCharAt(sb.length() - 1);
 		sb.append("]}");
 		
 		return sb.toString();
 	}
+	
+	public static void main(String[] args) {
+		SpectatorsSource a = new SpectatorsSource();
+		StaticJSONSource c = new StaticJSONSource();
+		
+		DataSourceComparator comp = new DataSourceComparator(c, a);
+		
+		System.out.println(comp.getData());
+	}
+	
 }

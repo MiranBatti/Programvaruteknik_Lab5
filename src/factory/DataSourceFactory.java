@@ -5,21 +5,19 @@ import java.util.Map;
 
 import domain.DataSource;
 import domain.FootballGoalsSource;
+import domain.GoldPriceSource;
+import domain.SpectatorsSource;
+import domain.StaticJSONSource;
 import domain.TemperatureSource;
 import errorhandler.ArrayIsEmptyExcpetion;
 
 public class DataSourceFactory {
-	private FootballGoalsSource goals;
-	private TemperatureSource temperature;
 	private Map<String, DataSource> datasources;
 	private DataSource[] list;
 	
 	public DataSourceFactory() {
-		goals = new FootballGoalsSource();
-		temperature = new TemperatureSource();
 		datasources = new HashMap<String, DataSource>();
-		datasources.put("goals", goals);
-		datasources.put("temperature", temperature);
+		mapSources();
 		list = new DataSource[2];
 	}
 
@@ -30,9 +28,17 @@ public class DataSourceFactory {
 		list[1] = datasources.get(datasource2);
 		
 		if(list[0] == null || list[1] == null) 
-			throw new ArrayIsEmptyExcpetion("Missing datasource");
+			throw new ArrayIsEmptyExcpetion("{error:\"Datasource does not exist\"}");
 		
 		return list;
+	}
+	
+	private void mapSources() {
+		datasources.put("goals", new FootballGoalsSource());
+		datasources.put("temperature", new TemperatureSource());
+		datasources.put("gold", new GoldPriceSource());
+		datasources.put("spectators", new SpectatorsSource());
+		datasources.put("static", new StaticJSONSource());
 	}
 	
 }
